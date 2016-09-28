@@ -49,7 +49,7 @@ final class FileUtils {
             file = FileUtils.getPersistentFile(context);
             file.delete();
         } catch (IOException e) {
-            context.getLogger().log(e, Logger.Level.ERRORS);
+            context.getLogger().log(e, LogLevel.ERRORS);
         }
     }
 

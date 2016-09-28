@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.tealium.Logger.Level;
 import com.tealium.Tealium.DispatchCallback;
 
 public class TealiumTest {
@@ -20,7 +19,7 @@ public class TealiumTest {
     @Test
     public void testTealiumInitWithLogLevel() throws Exception {
         new Tealium.Builder("tealiummobile", "main", "dev")
-                .setLogLevel(Level.WARNINGS)
+                .setLogLevel(LogLevel.WARNINGS)
                 .build();
 
     }

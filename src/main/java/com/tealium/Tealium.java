@@ -27,7 +27,7 @@ public final class Tealium {
         private final String account;
         private final String profile;
         private final String environment;
-        private Logger.Level logLevel = Logger.Level.VERBOSE;
+        private LogLevel logLevel = LogLevel.VERBOSE;
         private int timeout = 5000;
 
         /**
@@ -58,7 +58,7 @@ public final class Tealium {
                     this.timeout);
         }
 
-        public Builder setLogLevel(Logger.Level level) {
+        public Builder setLogLevel(LogLevel level) {
             if (level == null) {
                 throw new IllegalArgumentException("Invalid log level.");
             }
@@ -168,7 +168,7 @@ public final class Tealium {
         try {
             this.collect.dispatch(contextData, callback);
         } catch (IOException e) {
-            this.libraryContext.getLogger().log(e, Logger.Level.ERRORS);
+            this.libraryContext.getLogger().log(e, LogLevel.ERRORS);
         }
     }
 
