@@ -1,4 +1,4 @@
-# Tealium Library for Java Version 1.0.0
+# Tealium Library for Java
 
 This mobile library leverages the power of Tealium's [AudienceStream™](http://tealium.com/products/audiencestream/) making them natively available to Java applications.
 
@@ -21,7 +21,8 @@ The Tealium AudienceStream™ Influence DMP (data management platform) enables y
 * If you have **account specific questions** please contact your Tealium account manager
 
 ## Change Log
-
+- 1.0.1 Bug Fix
+    - LogLevel enum converted to public API 
 - 1.0.0 Initial Release
 - Tealium universal data sources added for all dispatches:
     - event_name (transitionary - will be deprecated)

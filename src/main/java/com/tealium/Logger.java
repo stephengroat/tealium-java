@@ -10,34 +10,20 @@ import java.io.PrintStream;
  */
 final class Logger {
 
-    static enum Level {
-        NONE(3), ERRORS(2), WARNINGS(1), VERBOSE(0);
-
-        private final int priority;
-
-        private Level(int priority) {
-            this.priority = priority;
-        }
-
-        int getPriority() {
-            return priority;
-        }
-    };
-
-    private final Level level;
+    private final LogLevel level;
     private final PrintStream out;
 
-    public Level getLevel() {
+    public LogLevel getLevel() {
         return level;
     }
 
-    public Logger(Level level) {
+    public Logger(LogLevel level) {
         super();
         this.level = level;
         out = System.out;
     }
 
-    public boolean isLogging(Level level) {
+    public boolean isLogging(LogLevel level) {
         return level.getPriority() >= this.level.getPriority();
     }
 
@@ -49,13 +35,13 @@ final class Logger {
      * @param level
      *            Level of message.
      */
-    public void log(String message, Level level) {
+    public void log(String message, LogLevel level) {
         if (isLogging(level)) {
             out.println(message);
         }
     };
 
-    public void log(Throwable t, Level level) {
+    public void log(Throwable t, LogLevel level) {
         if (isLogging(level)) {
             out.println(t);
             t.printStackTrace(out);

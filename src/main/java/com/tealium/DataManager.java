@@ -52,7 +52,7 @@ public final class DataManager {
         } catch (IOException e) {
             // File must be corrupt/unreadable etc
             this.persistentCache = new HashMap<>();
-            this.context.getLogger().log(e, Logger.Level.ERRORS);
+            this.context.getLogger().log(e, LogLevel.ERRORS);
         }
     }
 

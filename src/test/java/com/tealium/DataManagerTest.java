@@ -92,7 +92,7 @@ public class DataManagerTest {
         String account = "account";
         String profile = "profile";
         String env = "env";
-        LibraryContext ctx = new LibraryContext(account, profile, env, new Logger(Logger.Level.VERBOSE));
+        LibraryContext ctx = new LibraryContext(account, profile, env, new Logger(LogLevel.VERBOSE));
         FileUtils.deletePersistentFile(ctx);
 
         DataManager data = new DataManager(ctx);
