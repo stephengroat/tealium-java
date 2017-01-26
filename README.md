@@ -12,9 +12,8 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 
 ## How To Get Started
 
-* Check out the [Getting Started](https://community.tealiumiq.com/t5/Mobile-Libraries/Mobile-160-Getting-Started-With-Java/ta-p/15325) guide for a step by step walkthrough of adding Tealium to an existing project.  
-* The public API can viewed online [here](https://community.tealiumiq.com/t5/Mobile-Libraries/Tealium-Java-APIs/ta-p/15484), it is also provided in the Documentation directory
-* There are many other useful articles on our [community site](https://community.tealiumiq.com).
+* Check out the [Getting Started](https://community.tealiumiq.com/t5/Mobile-Libraries/Tealium-for-Java/ta-p/15325) guide for a step by step walkthrough of adding Tealium to an existing project.  
+* There are many other useful articles at the [Tealium Learning Community](https://community.tealiumiq.com).
 
 ## Contact Us
 
