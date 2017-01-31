@@ -1,8 +1,7 @@
 package com.tealium;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.tealium.DataManager.Key;
+import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -10,9 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Test;
-
-import com.tealium.DataManager.Key;
+import static org.junit.Assert.*;
 
 public class DataManagerTest {
     @Test
@@ -113,7 +110,7 @@ public class DataManagerTest {
         expectedData.put("tealium_visitor_id", notTestingThisHere);
         expectedData.put("tealium_vid", notTestingThisHere);
         expectedData.put("tealium_library_name", "java");
-        expectedData.put("tealium_library_version", "1.0.0");
+        expectedData.put("tealium_library_version", "1.1.0");
 
         assertTrue(mapContainsMap(persistentData, expectedData));
 

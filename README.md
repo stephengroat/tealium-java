@@ -1,5 +1,10 @@
 # Tealium Library for Java
 
+[![License](https://img.shields.io/badge/license-Proprietary-blue.svg?style=flat
+            )](https://github.com/Tealium/tealium-java/blob/master/LICENSE.txt)
+[![Language](https://img.shields.io/badge/language-Java-orange.svg?style=flat
+             )](http://www.oracle.com/technetwork/java/javase/overview/index.html)
+
 This mobile library leverages the power of Tealium's [AudienceStream™](http://tealium.com/products/audiencestream/) making them natively available to Java applications.
 
 Please contact your Account Manager first to verify yours agreement(s) for licensed products.
@@ -22,6 +27,17 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 * If you have **account specific questions** please contact your Tealium account manager
 
 ## Change Log
+- 1.1.0 API Update
+    - New variable added:
+        - tealium_event_type
+    - track(type, title, data, completion) added as new primary track method, types avail:
+        - activity
+        - conversion
+        - derived
+        - interaction
+        - view
+    - DispatchCallback update to return info dictionary instead of just encodedUrl -> ( boolean, map<String, Object>, error) that 
+    - Removal of convenience retry track(string, callBack)
 - 1.0.1 Bug Fix
     - LogLevel enum converted to public API 
 - 1.0.0 Initial Release
@@ -45,4 +61,4 @@ Use of this software is subject to the terms and conditions of the license agree
 
 
 ---
-Copyright (C) 2012-2016, Tealium Inc.
+Copyright (C) 2012-2017, Tealium Inc.

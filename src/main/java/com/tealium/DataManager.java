@@ -2,13 +2,11 @@ package com.tealium;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Tealium data manager object for processing generation of standardized
@@ -106,7 +104,7 @@ public final class DataManager {
     protected Map<String, Object> getVolatileData() {
         volatileData.put(Key.TEALIUM_TIMESTAMP_EPOCH, getTimestampInSeconds());
         volatileData.put(Key.TEALIUM_RANDOM, getRandom());
-        volatileData.put(Key.TEALIUM_SESSSION_ID, getSessionId());
+        volatileData.put(Key.TEALIUM_SESSION_ID, getSessionId());
         return volatileData;
     }
 
@@ -117,7 +115,7 @@ public final class DataManager {
     private Map<String, Object> createNewPersistentData() {
         Map<String, Object> data = new HashMap<>();
         data.put(Key.TEALIUM_LIBRARY_NAME, "java");
-        data.put(Key.TEALIUM_LIBRARY_VERSION, "1.0.0");
+        data.put(Key.TEALIUM_LIBRARY_VERSION, "1.1.0");
         data.put(Key.TEALIUM_ACCOUNT, this.context.getAccount());
         data.put(Key.TEALIUM_PROFILE, this.context.getProfile());
         data.put(Key.TEALIUM_ENVIRONMENT, this.context.getEnvironment());
@@ -155,13 +153,36 @@ public final class DataManager {
         public static final String TEALIUM_ACCOUNT = "tealium_account";
         public static final String TEALIUM_ENVIRONMENT = "tealium_environment";
         public static final String TEALIUM_EVENT = "tealium_event";
+        public static final String TEALIUM_EVENT_TYPE = "tealium_event_type";
         public static final String TEALIUM_LIBRARY_NAME = "tealium_library_name";
         public static final String TEALIUM_LIBRARY_VERSION = "tealium_library_version";
         public static final String TEALIUM_PROFILE = "tealium_profile";
         public static final String TEALIUM_RANDOM = "tealium_random";
-        public static final String TEALIUM_SESSSION_ID = "tealium_session_id";
+        public static final String TEALIUM_SESSION_ID = "tealium_session_id";
         public static final String TEALIUM_TIMESTAMP_EPOCH = "tealium_timestamp_epoch";
         public static final String TEALIUM_VISITOR_ID = "tealium_visitor_id";
+
+    }
+
+    public static class EventType {
+        private EventType() {
+        }
+
+        public static final String ACTIVITY = "activity";
+        public static final String CONVERSION = "conversion";
+        public static final String DERIVED = "derived";
+        public static final String INTERACTION = "interaction";
+        public static final String VIEW = "view";
+
+    }
+
+    public static class InfoKey {
+        private InfoKey() {
+        }
+        public static final String DISPATCH_SERVICE = "dispatch_service";
+        public static final String ENCODED_URL = "encoded_url";
+        public static final String RESPONSE_HEADERS = "response_headers";
+        public static final String PAYLOAD = "payload";
 
     }
 }
