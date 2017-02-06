@@ -8,10 +8,36 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.tealium.Tealium.DispatchCallback;
+import com.tealium.DataManager.InfoKey;
+
+import javax.xml.ws.http.HTTPException;
+
+
+/**
+*   Internal convenience exception for handling failed URL connections.
+*/
+class FailedConnectionException extends HTTPException {
+
+    public Map<String, List<String>> headers;
+    public String customMessage;
+
+    public String getCustomMessage() {
+        return customMessage;
+    }
+
+    public FailedConnectionException(int responseCode) { super(responseCode); }
+    public FailedConnectionException(int responseCode, String message, Map<String, List<String>> headers) {
+
+        super(responseCode);
+        this.customMessage = message;
+        this.headers = headers;
+    }
+}
 
 /**
  * Tealium Collect Dispatch service for delivering tracked data to Tealium's
@@ -62,12 +88,39 @@ final class CollectDispatchService {
         String finalUrl = this.baseURL + encodedQueryStringParamsFrom(data);
 
         try {
-            send(finalUrl, callback);
+            HttpURLConnection connection = collectConnection(this, finalUrl);
+
+            Map<String, List<String>> responseHeaders = send(connection);
+            safeCallback(callback,
+                    true,
+                    finalUrl,
+                    responseHeaders,
+                    data,
+                    null);
+        } catch (FailedConnectionException e) {
+            String errorMessage = e.toString();
+            Map<String, List<String>> headers = e.headers;
+            safeCallback(callback,
+                    false,
+                    finalUrl,
+                    headers,
+                    data,
+                    errorMessage);
         } catch (UnknownHostException e) {
             String errorMessage = e.toString();
-            safeCallback(callback, false, finalUrl, errorMessage);
+            safeCallback(callback,
+                    false,
+                    finalUrl,
+                    null,
+                    data,
+                    errorMessage);
         } catch (MalformedURLException e) {
-            safeCallback(callback, false, finalUrl, e.toString());
+            safeCallback(callback,
+                    false,
+                    finalUrl,
+                    null,
+                    data,
+                    e.toString());
             new RuntimeException(e);
         }
 
@@ -129,9 +182,8 @@ final class CollectDispatchService {
 
     /**
      * Encode String[] according to vData spec.
-     * 
-     * @param string
-     *            array
+     *
+     * @param value of String[]
      * @return encoded String
      * @throws UnsupportedEncodingException
      */
@@ -152,19 +204,25 @@ final class CollectDispatchService {
     // PROTECTED HELPERS
     // =========================================================================
 
-    protected void send(HttpURLConnection connection, final String encodedUrlString, DispatchCallback callback)
-            throws MalformedURLException, IOException {
+    protected Map<String, List<String>> send(HttpURLConnection connection) throws FailedConnectionException, IOException {
 
         try {
 
             connection.connect();
-            String responseError = connection.getHeaderField("x-error");
-            
             int responseCode = connection.getResponseCode();
+            String responseError = connection.getHeaderField("x-error");
+            Map<String, List<String>> headers = connection.getHeaderFields();
+
+            if (responseError != null ){
+                throw new FailedConnectionException(responseCode, responseError, headers);
+            }
+
             if (responseCode != 200) {
                 responseError = "Unexpected response code received: " + Integer.toString(responseCode);
+                throw new FailedConnectionException(responseCode, responseError, headers);
             }
-            safeCallback(callback, (responseError == null) ? true : false, encodedUrlString, responseError);
+
+            return (headers);
 
         } finally {
             if (connection != null) {
@@ -173,26 +231,46 @@ final class CollectDispatchService {
         }
         
     }
-    
-    protected void send(final String encodedUrlString, DispatchCallback callback) throws MalformedURLException, IOException{
-        
-        HttpURLConnection con = collectConnection(this, encodedUrlString);
-
-        send(con, encodedUrlString, callback);
-        
-    }
 
     // =========================================================================
     // PRIVATE HELPERS
     // =========================================================================
 
-    private void safeCallback(Tealium.DispatchCallback callback, boolean success, String encodedUrl,
-            String errorMessage) {
+    private void safeCallback(Tealium.DispatchCallback callback,
+                              boolean success,
+                              String encodedUrl,
+                              Map<String, List<String>> headerFields,
+                              Map<String, Object> data,
+                              String errorMessage) {
+
         if (callback == null) {
             return;
         }
 
-        callback.dispatchComplete(success, encodedUrl, errorMessage);
+        // General
+        Map<String, Object> info = new HashMap<>();
+        info.put(InfoKey.DISPATCH_SERVICE, "collect");
+
+        if (encodedUrl != null) {
+            info.put(InfoKey.ENCODED_URL, encodedUrl);
+        }
+
+        if (data != null) {
+            info.put(InfoKey.PAYLOAD, data);
+        }
+
+        // Headers
+        if (headerFields != null) {
+            Map<String, Object> headers = new HashMap<>();
+            for (Map.Entry<String, List<String>> k : headerFields.entrySet()) {
+                for (String v : k.getValue()) {
+                    headers.put(k.getKey(), v);
+                }
+            }
+            info.put(DataManager.InfoKey.RESPONSE_HEADERS, headers);
+        }
+
+        callback.dispatchComplete(success, info, errorMessage);
 
     }
 

@@ -2,6 +2,9 @@ package com.tealium;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +27,11 @@ public class TealiumTest {
 
     }
 
-    // This is really not a great test...whatever
+    @Test
+    public void name() throws Exception {
+
+    }
+
     @Test
     public void testTrack() throws InterruptedException {
 
@@ -34,10 +41,30 @@ public class TealiumTest {
 
         final CountDownLatch barrier = new CountDownLatch(3);
 
+        // Keys and values should have been checked by other class tests - just double checking keys here
+        Map<String, Object> expectedKeys = new HashMap<String, Object>();
+        expectedKeys.put("event_name", "value");
+        expectedKeys.put("tealium_account", "value");
+        expectedKeys.put("tealium_environment", "value");
+        expectedKeys.put("tealium_event", "value");
+        expectedKeys.put("tealium_event_type", "value");
+        expectedKeys.put("tealium_library_name", "value");
+        expectedKeys.put("tealium_library_version", "value");
+        expectedKeys.put("tealium_profile", "value");
+        expectedKeys.put("tealium_random", "value");
+        expectedKeys.put("tealium_session_id", "value");
+        expectedKeys.put("tealium_timestamp_epoch", "value");
+        expectedKeys.put("tealium_visitor_id", "value");
+
         DispatchCallback callBack = new DispatchCallback() {
             @Override
-            public void dispatchComplete(boolean success, String encodedUrl, String error) {
+            public void dispatchComplete(boolean success, Map<String, Object> info, String error) {
+
+                Map<String, Object> payload = (HashMap<String, Object>)info.get("payload");
+
                 assertTrue(success);
+                assertTrue(mapContainsKeysFromMap(payload, expectedKeys));
+
                 barrier.countDown();
             }
         };
@@ -45,6 +72,26 @@ public class TealiumTest {
         tealium.track("test", null, callBack);
         barrier.await(1, TimeUnit.SECONDS);
 
+    }
+
+    // =========================================================================
+    // HELPERS
+    // =========================================================================
+
+    boolean mapContainsKeysFromMap(Map<String, Object> sourceMap, Map<String, Object> subSetMap) {
+
+        Set<String> sourceKeys = sourceMap.keySet();
+        Set<String> subSetKeys = subSetMap.keySet();
+
+        for (String k : subSetKeys) {
+            if (!sourceKeys.contains(k)) {
+                System.out.println("Source map does not contain key from subSetMap: " + k);
+                return false;
+            }
+
+        }
+
+        return true;
     }
 
 }

@@ -3,11 +3,10 @@ package com.tealium;
 import static org.junit.Assert.*;
 
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -16,7 +15,7 @@ import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 
-import com.tealium.Tealium.DispatchCallback;;
+import com.tealium.Tealium.DispatchCallback;
 
 public class CollectTest {
 
@@ -38,12 +37,8 @@ public class CollectTest {
 
         DispatchCallback callBack = new DispatchCallback() {
 
-            public void dispatchComplete(boolean success, String encodedUrl, String error) {
+            public void dispatchComplete(boolean success, Map<String, Object> info, String error) {
 
-                System.out.println("CollectTests: TestDispatch: Dispatch successful: " + String.valueOf(success));
-                if (error != null) {
-                    System.out.println("Error: " + error);
-                }
                 assertTrue(success);
                 barrier.countDown();
             }
@@ -72,12 +67,9 @@ public class CollectTest {
 
         DispatchCallback callBack = new DispatchCallback() {
 
-            public void dispatchComplete(boolean success, String encodedUrl, String error) {
+            @Override
+            public void dispatchComplete(boolean success, Map<String, Object> info, String error) {
 
-                System.out.println("Dispatch successful: " + String.valueOf(success));
-                if (error != null) {
-                    System.out.println("Error: " + error);
-                }
                 assertFalse(success);
                 barrier.countDown();
             }
@@ -99,9 +91,9 @@ public class CollectTest {
     
     // ENCODE QUERY STRING PARAMS TESTS
 
-    static String EXPECTED_URL_STRINGSTRINGMAP = "?key_2=value_2&key1=value1&specialKey=%24-_.%2B%21*%27%28%29%2C&key=value&a+key=a+value";
+    static String EXPECTED_URL_STRINGSTRINGMAP = "?a+key=a+value&key=value&key1=value1&key_2=value_2&specialKey=%24-_.%2B%21*%27%28%29%2C";
     static String EXPECTED_URL_STRINGARRAYMAP = "?array2=%5B%22123%22%2C%22true%22%2C%22%21%40%23%24%25%5E%26*%28%29_%2B%22%5D&array1=%5B%22foo%22%2C%22bar%2C%0D%0A%09and+some+extra+stuff%22%5D";
-    static String EXPECTED_URL_STRINGMIXEDMAP = "?array1=%5B%22foo%22%2C%22bar%2C%0D%0A%09and+some+extra+stuff%22%5D&key_2=value_2&a+key=a+value";
+    static String EXPECTED_URL_STRINGMIXEDMAP = "?a+key=a+value&array1=%5B%22foo%22%2C%22bar%2C%0D%0A%09and+some+extra+stuff%22%5D&key_2=value_2";
 
     Map<String, Object> stringStringMap() {
         
@@ -128,7 +120,7 @@ public class CollectTest {
         
     }
     
-    Map<String, ?> stringMixedAcceptableMap() {
+    Map<String, Object> stringMixedAcceptableMap() {
         
         Map<String, Object> map = new HashMap<>();
         
@@ -158,8 +150,8 @@ public class CollectTest {
         
         // String, String maps
         Map<String, Object> map = stringStringMap();
-        String output = CollectDispatchService.Test.encodedQueryStrings(map, collect);
-        System.out.println(output.toString());
+        Map<String, Object> orderedMap = new TreeMap<String, Object>(map);
+        String output = CollectDispatchService.Test.encodedQueryStrings(orderedMap, collect);
         assertEquals(EXPECTED_URL_STRINGSTRINGMAP, output);
      
     }
@@ -173,7 +165,7 @@ public class CollectTest {
         // String, [String] maps
         Map<String, ?> map = stringArrayMap();
         String output = CollectDispatchService.Test.encodedQueryStrings(map, collect);
-        System.out.println(output.toString());
+
         assertEquals(EXPECTED_URL_STRINGARRAYMAP, output);
      
     }
@@ -185,9 +177,11 @@ public class CollectTest {
                 TestLibraryContext.newInstance(), 1000);
         
         // String, String & [String] maps
-        Map<String, ?> map = stringMixedAcceptableMap();
-        String output = CollectDispatchService.Test.encodedQueryStrings(map, collect);
-        System.out.println(output.toString());
+        Map<String, Object> map = stringMixedAcceptableMap();
+        Map<String, Object> orderedMap = new TreeMap<String, Object>(map);
+
+        String output = CollectDispatchService.Test.encodedQueryStrings(orderedMap, collect);
+
         assertEquals(EXPECTED_URL_STRINGMIXEDMAP, output);
         
         
@@ -204,26 +198,13 @@ public class CollectTest {
         CollectDispatchService collect = new CollectDispatchService(CollectDispatchService.DEFAULT_URL,
                 TestLibraryContext.newInstance(), 1000);
 
-        // Async Barrier
-        final CountDownLatch barrier = new CountDownLatch(1);
-
-        DispatchCallback callBack = new DispatchCallback() {
-            @Override
-            public void dispatchComplete(boolean success, String encodedUrl, String error) {
-                assertTrue(success);
-                barrier.countDown();
-            }
-        };
-        
         try {
-            collect.send(testConnection, "someURLAddress", callBack);
-        } catch (UnknownHostException e) {
-            System.out.println(e.toString());
-        } catch (MalformedURLException e) {
-            System.out.println(e.toString());
+            Map<String, List<String>> headers = collect.send(testConnection);
+            assertTrue(headers != null);
+        } catch (Exception e){
+            System.out.println("testSuccessfulSend: " + e.toString());
+            fail();
         }
-        
-        barrier.await(1, TimeUnit.SECONDS);
 
     }
     
@@ -231,32 +212,22 @@ public class CollectTest {
     public void testFailingSendXError() throws Exception {
         
         // Mock(s)
+        String errorMessage = "some error detected";
         HttpURLConnection testConnection = Mockito.mock(HttpURLConnection.class);
-        when(testConnection.getHeaderField("x-error")).thenReturn("some error detected");        
+        when(testConnection.getHeaderField("x-error")).thenReturn(errorMessage);
         
         CollectDispatchService collect = new CollectDispatchService(CollectDispatchService.DEFAULT_URL,
                 TestLibraryContext.newInstance(), 1000);
 
-        // Async Barrier
-        final CountDownLatch barrier = new CountDownLatch(1);
-
-        DispatchCallback callBack = new DispatchCallback() {
-            @Override
-            public void dispatchComplete(boolean success, String encodedUrl, String error) {
-                assertFalse(success);
-                barrier.countDown();
-            }
-        };
-        
         try {
-            collect.send(testConnection, "someURLAddress", callBack);
-        } catch (UnknownHostException e) {
-            System.out.println(e.toString());
-        } catch (MalformedURLException e) {
-            System.out.println(e.toString());
+            collect.send(testConnection);
+            fail();
+        } catch (FailedConnectionException e){
+            assertTrue(e.getCustomMessage().equals(errorMessage));
+        } catch (Exception e) {
+            System.out.println("testFailingSendXError" + e.toString());
+            fail();
         }
-        
-        barrier.await(1, TimeUnit.SECONDS);
 
     }
     
@@ -266,30 +237,22 @@ public class CollectTest {
         // Mock(s)
         HttpURLConnection testConnection = Mockito.mock(HttpURLConnection.class);
         when(testConnection.getResponseCode()).thenReturn(123);        
-        
+
+        String expectedErrorMessage = "Unexpected response code received: 123";
+
         CollectDispatchService collect = new CollectDispatchService(CollectDispatchService.DEFAULT_URL,
                 TestLibraryContext.newInstance(), 1000);
 
-        // Async Barrier
-        final CountDownLatch barrier = new CountDownLatch(1);
-
-        DispatchCallback callBack = new DispatchCallback() {
-            @Override
-            public void dispatchComplete(boolean success, String encodedUrl, String error) {
-                assertFalse(success);
-                barrier.countDown();
-            }
-        };
-        
         try {
-            collect.send(testConnection, "someURLAddress", callBack);
-        } catch (UnknownHostException e) {
-            System.out.println(e.toString());
-        } catch (MalformedURLException e) {
-            System.out.println(e.toString());
+            collect.send(testConnection);
+            fail();
+        } catch (FailedConnectionException e){
+            assertTrue(e.getStatusCode() == 123);
+            assertTrue(e.getCustomMessage().equals(expectedErrorMessage));
+        } catch (Exception e) {
+            System.out.println("testFailingResponseCode" + e.toString());
+            fail();
         }
-        
-        barrier.await(1, TimeUnit.SECONDS);
 
     }
     

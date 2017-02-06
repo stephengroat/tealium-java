@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.tealium.DataManager.Key;
+import com.tealium.DataManager.EventType;
+import com.tealium.DataManager.InfoKey;
 
 /**
  * Tealium library for conversion and dispatch handling of natively triggered
@@ -89,13 +91,14 @@ public final class Tealium {
          * Required method to handle callback.
          * 
          * @param success
-         * @param encodedUrl
+         * @param info
+         *            Map containing call info, typical keys: dispatch_service, payload
          * @param error
          *            null or string whether an occurred.
          * 
          * @return String encoded URL string
          */
-        public void dispatchComplete(boolean success, String encodedUrl, String error);
+        public void dispatchComplete(boolean success, Map<String, Object> info, String error);
     }
 
     // =========================================================================
@@ -142,7 +145,7 @@ public final class Tealium {
     }
 
     /**
-     * Primary Track method.
+     * Convenient Track method for activities.
      * 
      * @param eventTitle
      *            Required title of event.
@@ -154,7 +157,32 @@ public final class Tealium {
      */
     public void track(String eventTitle, Map<String, ?> data, Tealium.DispatchCallback callback) {
 
+        track(EventType.ACTIVITY, eventTitle, data, callback);
+    }
+
+        /**
+     * Primary Track method.
+     * 
+     * @param eventType
+     *            Optional track type (VIEW, ACTIVITY, INTERACTION, DERIVED, CONVERSION). Defaults
+     *            to ACTIVITY if nil.
+     * @param eventTitle
+     *            Required title of event.
+     * @param data
+     *            Optional map of additional data to pass with call. Values
+     *            should be Strings or Array of Strings.
+     * @param callback
+     *            Object conforming to the CollectCallback interface.
+     */
+    public void track(String eventType, String eventTitle, Map<String, ?> data, Tealium.DispatchCallback callback) {
+
         Map<String, Object> contextData = this.data.getPersistentData();
+
+        if (eventType == null) {
+            eventType = EventType.ACTIVITY;
+        }
+        contextData.put(Key.TEALIUM_EVENT_TYPE, eventType);
+
         if (eventTitle != null) {
             //Legacy - will be deprecated
             contextData.put(Key.EVENT_NAME, eventTitle);
@@ -175,12 +203,15 @@ public final class Tealium {
     /**
      * Convenient basic track method for failed dispatches. Method used as a
      * re-try
-     * 
+     *
+     * @deprecated use {@link #track(String, Map, DispatchCallback)} ()} instead.
+     *
      * @param encodedUrl
      *            Encoded URL string returned from failed dispatch callback
      */
+    @Deprecated
     public void track(String encodedUrl, Tealium.DispatchCallback callback) throws IOException {
-        collect.send(encodedUrl, callback);
+        // No longer supported
     }
 
     // =========================================================================

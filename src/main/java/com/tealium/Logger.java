@@ -35,10 +35,12 @@ final class Logger {
      * @param level
      *            Level of message.
      */
-    public void log(String message, LogLevel level) {
+    public String log(String message, LogLevel level) {
         if (isLogging(level)) {
             out.println(message);
+            return message;
         }
+        return null;
     };
 
     public void log(Throwable t, LogLevel level) {
