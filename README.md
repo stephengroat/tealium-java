@@ -27,6 +27,11 @@ AudienceStream™ allows you to create a unified view of your customers, correla
 * If you have **account specific questions** please contact your Tealium account manager
 
 ## Change Log
+- 1.2.0 Add Datasource
+	- New variable added:
+		- tealium_datasource
+	- Persistent file name changed to account.profile.data - NOTE: if upgrading from prior version, file no longer accessible.
+	- Bug fix for unit test
 - 1.1.0 API Update
     - New variable added:
         - tealium_event_type

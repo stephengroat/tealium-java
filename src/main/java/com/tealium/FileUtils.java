@@ -33,10 +33,9 @@ final class FileUtils {
     static final File getPersistentFile(LibraryContext context) throws IOException {
         File file = new File(
                 FileUtils.getTealiumDir(),
-                String.format(Locale.ROOT, "%s.%s.%s.data",
+                String.format(Locale.ROOT, "%s.%s.data",
                         context.getAccount(),
-                        context.getProfile(),
-                        context.getEnvironment()));
+                        context.getProfile()));
         return file;
     }
 

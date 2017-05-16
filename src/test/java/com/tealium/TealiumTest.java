@@ -37,7 +37,8 @@ public class TealiumTest {
 
         FileUtils.deletePersistentFile(TestLibraryContext.newInstance());
 
-        Tealium tealium = new Tealium.Builder("tealiummobile", "demo", "dev").build();
+        Tealium tealium = new Tealium.Builder("tealiummobile", "demo")
+        		.setEnvironment("env").setDatasource("datasource").build();
 
         final CountDownLatch barrier = new CountDownLatch(3);
 
@@ -46,6 +47,7 @@ public class TealiumTest {
         expectedKeys.put("event_name", "value");
         expectedKeys.put("tealium_account", "value");
         expectedKeys.put("tealium_environment", "value");
+        expectedKeys.put("tealium_datasource", "value");
         expectedKeys.put("tealium_event", "value");
         expectedKeys.put("tealium_event_type", "value");
         expectedKeys.put("tealium_library_name", "value");
@@ -55,6 +57,8 @@ public class TealiumTest {
         expectedKeys.put("tealium_session_id", "value");
         expectedKeys.put("tealium_timestamp_epoch", "value");
         expectedKeys.put("tealium_visitor_id", "value");
+        
+        final Map<String, Object> expectedKeysImmutable = new HashMap<String, Object>(expectedKeys);
 
         DispatchCallback callBack = new DispatchCallback() {
             @Override
@@ -63,7 +67,7 @@ public class TealiumTest {
                 Map<String, Object> payload = (HashMap<String, Object>)info.get("payload");
 
                 assertTrue(success);
-                assertTrue(mapContainsKeysFromMap(payload, expectedKeys));
+                assertTrue(mapContainsKeysFromMap(payload, expectedKeysImmutable));
 
                 barrier.countDown();
             }

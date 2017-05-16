@@ -28,7 +28,8 @@ public final class Tealium {
 
         private final String account;
         private final String profile;
-        private final String environment;
+        private String environment;
+        private String datasource;
         private LogLevel logLevel = LogLevel.VERBOSE;
         private int timeout = 5000;
 
@@ -39,9 +40,30 @@ public final class Tealium {
          *            Required. Tealium account name.
          * @param profile
          *            Required. Tealium profile name.
+         */
+        public Builder(String account, String profile) {
+            if (Util.isEmpty(this.account = account) || Util.isEmpty(this.profile = profile)) {
+                throw new IllegalArgumentException("account & profile must not be empty.");
+            }
+        }
+        
+        /**
+         * Constructor for a new Tealium object.
+         * 
+         * The preferred way to set environment is with the "setEnvironment" method.
+         * Environment is therefore no longer required as a constructor argument, and this
+         * constructor is deprecated.
+         * 
+         * @deprecated use {@link #Builder(String, String)} ()} instead.
+         * 
+         * @param account
+         *            Required. Tealium account name.
+         * @param profile
+         *            Required. Tealium profile name.
          * @param environment
          *            Required. Tealium environment. Usually dev, qa, or prod.
          */
+        @Deprecated
         public Builder(String account, String profile, String environment) {
             if (Util.isEmpty(this.account = account) || Util.isEmpty(this.profile = profile)
                     || Util.isEmpty(this.environment = environment)) {
@@ -56,7 +78,7 @@ public final class Tealium {
          */
         public Tealium build() {
             return new Tealium(
-                    new LibraryContext(this.account, this.profile, this.environment, new Logger(this.logLevel)),
+                    new LibraryContext(this.account, this.profile, this.environment, this.datasource, new Logger(this.logLevel)),
                     this.timeout);
         }
 
@@ -65,6 +87,22 @@ public final class Tealium {
                 throw new IllegalArgumentException("Invalid log level.");
             }
             this.logLevel = level;
+            return this;
+        }
+        
+        public Builder setEnvironment(String environment) {
+        	if (environment == null) {
+                throw new IllegalArgumentException("Invalid environment.");
+            }
+            this.environment = environment;
+            return this;
+        }
+        
+        public Builder setDatasource(String datasource) {
+        	if (datasource == null) {
+                throw new IllegalArgumentException("Invalid datasource.");
+            }
+            this.datasource = datasource;
             return this;
         }
 
@@ -119,6 +157,10 @@ public final class Tealium {
 
     public String getEnvironment() {
         return this.libraryContext.getEnvironment();
+    }
+    
+    public String getDatasource() {
+    	return this.libraryContext.getDatasource();
     }
 
     /**
@@ -188,6 +230,11 @@ public final class Tealium {
             contextData.put(Key.EVENT_NAME, eventTitle);
             contextData.put(Key.TEALIUM_EVENT, eventTitle);
         }
+        
+        if (this.getDatasource() != null) {
+        	contextData.put(Key.TEALIUM_DATASOURCE, this.getDatasource());
+        }
+        
         contextData.putAll(this.data.getVolatileData());
         if (data != null) {
             contextData.putAll(Util.copySanitized(data));
