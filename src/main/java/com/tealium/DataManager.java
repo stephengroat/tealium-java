@@ -115,10 +115,13 @@ public final class DataManager {
     private Map<String, Object> createNewPersistentData() {
         Map<String, Object> data = new HashMap<>();
         data.put(Key.TEALIUM_LIBRARY_NAME, "java");
-        data.put(Key.TEALIUM_LIBRARY_VERSION, "1.1.0");
+        data.put(Key.TEALIUM_LIBRARY_VERSION, "1.2.0");
         data.put(Key.TEALIUM_ACCOUNT, this.context.getAccount());
         data.put(Key.TEALIUM_PROFILE, this.context.getProfile());
-        data.put(Key.TEALIUM_ENVIRONMENT, this.context.getEnvironment());
+        if(this.context.getEnvironment() != null)
+        	data.put(Key.TEALIUM_ENVIRONMENT, this.context.getEnvironment());
+        if(this.context.getDatasource() != null)
+        	data.put(Key.TEALIUM_DATASOURCE, this.context.getDatasource());
         String vid = createNewVisitorId();
         // NOTE Migratory vids
         data.put(Key.TEALIUM_VISITOR_ID, vid);
@@ -152,6 +155,7 @@ public final class DataManager {
         public static final String EVENT_NAME = "event_name";
         public static final String TEALIUM_ACCOUNT = "tealium_account";
         public static final String TEALIUM_ENVIRONMENT = "tealium_environment";
+        public static final String TEALIUM_DATASOURCE = "tealium_datasource";
         public static final String TEALIUM_EVENT = "tealium_event";
         public static final String TEALIUM_EVENT_TYPE = "tealium_event_type";
         public static final String TEALIUM_LIBRARY_NAME = "tealium_library_name";

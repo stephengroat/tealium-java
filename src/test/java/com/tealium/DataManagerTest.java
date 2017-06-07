@@ -89,7 +89,8 @@ public class DataManagerTest {
         String account = "account";
         String profile = "profile";
         String env = "env";
-        LibraryContext ctx = new LibraryContext(account, profile, env, new Logger(LogLevel.VERBOSE));
+        String datasource = "datasource";
+        LibraryContext ctx = new LibraryContext(account, profile, env, datasource, new Logger(LogLevel.VERBOSE));
         FileUtils.deletePersistentFile(ctx);
 
         DataManager data = new DataManager(ctx);
@@ -110,7 +111,7 @@ public class DataManagerTest {
         expectedData.put("tealium_visitor_id", notTestingThisHere);
         expectedData.put("tealium_vid", notTestingThisHere);
         expectedData.put("tealium_library_name", "java");
-        expectedData.put("tealium_library_version", "1.1.0");
+        expectedData.put("tealium_library_version", "1.2.0");
 
         assertTrue(mapContainsMap(persistentData, expectedData));
 
