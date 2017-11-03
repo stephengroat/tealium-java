@@ -2,7 +2,6 @@ package com.tealium;
 
 import java.security.SecureRandom;
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * Tealium data manager object for processing generation of standardized
@@ -17,7 +16,7 @@ public final class DataManager {
     private final Random randomGenerator;
     private final Udo volatileData;
     private String sessionId;
-    private PersistentUdo persistentUdo = null;
+    private PersistentUdo persistentData = null;
     private Udo persistentCache; // use this instead of reading from storage all the time
 
     // =========================================================================
@@ -27,16 +26,16 @@ public final class DataManager {
     /**
      * Constructor for new DataManager Object
      */
-    public DataManager(LibraryContext libraryContext, PersistentUdo persistentUdo) {
+    public DataManager(LibraryContext libraryContext, PersistentUdo persistentData) {
         super();
         this.libraryContext = libraryContext;
         this.sessionId = getTimestampInMilliseconds();
         this.randomGenerator = new SecureRandom();
         this.volatileData = new Udo();
-        this.persistentUdo = persistentUdo;
+        this.persistentData = persistentData;
 
         try {
-            this.persistentCache = this.persistentUdo.readOrCreateUdo(this.createNewPersistentData());
+            this.persistentCache = this.persistentData.readOrCreateUdo(this.createNewPersistentData());
         } catch (UdoSerializationException e) {
             // File must be corrupt/unreadable etc
             this.persistentCache = new Udo(); // persistent cache is empty when something goes wrong.
@@ -58,7 +57,7 @@ public final class DataManager {
      * 
      * @return persistent data map
      */
-    public Udo getPersistentUdo() {
+    public Udo getPersistentData() {
         return this.persistentCache;
     }
 
@@ -70,9 +69,9 @@ public final class DataManager {
      * @throws PersistentDataAccessException
      */
     public void addPersistentData(Udo data) throws UdoSerializationException {
-        Udo persistent = getPersistentUdo();
+        Udo persistent = getPersistentData();
         persistent.putAll(data);
-        this.persistentUdo.writeUdo(persistent);
+        this.persistentData.writeData(persistent);
     }
 
     /**

@@ -15,11 +15,10 @@ import static org.junit.Assert.assertTrue;
  */
 public class UdoTests {
     @Test
-    public void dummy() throws IOException {
+    public void nonEmptyUdoEncodesProperly() throws IOException, UdoSerializationException {
         Map<String, Object> map1 = TestUtils.stringStringMap();
         Udo udo1 = new Udo(map1);
-        String json1 = JSON.std.asString(udo1);
-        System.out.println(json1);
+        String json1 = udo1.toJson();
         Map<String, Object> resultMap1 = JSON.std.mapFrom(json1);
         Udo resultUdo1 = new Udo(resultMap1);
 
@@ -27,8 +26,7 @@ public class UdoTests {
 
         Map<String, Object> map2 = TestUtils.stringArrayMap();
         Udo udo2 = new Udo(map2);
-        String json2 = JSON.std.asString(udo2);
-        System.out.println(json2);
+        String json2 = udo2.toJson();
         Map<String, Object> resultMap2 = JSON.std.mapFrom(json2);
         Udo resultUdo2 = new Udo(resultMap2);
 
@@ -36,8 +34,7 @@ public class UdoTests {
 
         Map<String, Object> map3 = TestUtils.stringMixedAcceptableMap();
         Udo udo3 = new Udo(map3);
-        String json3 = JSON.std.asString(udo3);
-        System.out.println(json3);
+        String json3 = udo3.toJson();
         Map<String, Object> resultMap3 = JSON.std.mapFrom(json3);
         Udo resultUdo3 = new Udo(resultMap3);
 

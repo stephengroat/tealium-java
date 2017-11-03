@@ -51,7 +51,7 @@ final class CollectDispatcher {
     /**
      * Packages data sources into expected URL call format and sends.
      * 
-     * @param udo
+     * @param data
      *            Map of all key-values to be sent with dispatch.
      * @param callback
      *            Optional callback object implementing the CollectCallback
@@ -59,22 +59,22 @@ final class CollectDispatcher {
      * @throws CollectDispatchException
      * @see{@link #CollectCallback}
      */
-    public void dispatch(Udo udo, DispatchCallback callback) throws CollectDispatchException {
+    public void dispatch(Udo data, DispatchCallback callback) throws CollectDispatchException {
         String payloadJson;
         HttpURLConnection connection;
 
         // Determine request url
         try {
-            payloadJson = udo.toJson();
+            payloadJson = data.toJson();
         } catch (UdoSerializationException e) {
             CollectDispatchException err =
-                    new CollectDispatchException("Dispatch failed because of udo serialization error", e);
+                    new CollectDispatchException("Dispatch failed because of data serialization error", e);
 
             callCallback(callback,
                     false,
                     null,
                     null,
-                    udo,
+                    data,
                     err.toString());
             throw err;
         }
@@ -99,7 +99,7 @@ final class CollectDispatcher {
                     false,
                     this.endpoint,
                     null,
-                    udo,
+                    data,
                     err.toString());
             throw err;
         } catch (ProtocolException e) {
@@ -110,7 +110,7 @@ final class CollectDispatcher {
                     false,
                     this.endpoint,
                     null,
-                    udo,
+                    data,
                     err.toString());
             throw err;
         } catch (IOException e) {
@@ -121,7 +121,7 @@ final class CollectDispatcher {
                     false,
                     this.endpoint,
                     null,
-                    udo,
+                    data,
                     err.toString());
             throw err;
         }
@@ -177,21 +177,21 @@ final class CollectDispatcher {
                     true,
                     this.endpoint,
                     headers,
-                    udo,
+                    data,
                     null);
         } catch (FailedRequestException e) {
             callCallback(callback,
                     false,
                     this.endpoint,
                     e.headers,
-                    udo,
+                    data,
                     e.toString());
         } catch (FailedConnectionException e) {
             callCallback(callback,
                     false,
                     this.endpoint,
                     null,
-                    udo,
+                    data,
                     e.toString());
         }
     }

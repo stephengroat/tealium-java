@@ -42,7 +42,7 @@ public class TealiumTests {
             }
 
             @Override
-            public void writeUdo(Udo map) {
+            public void writeData(Udo data) {
 
             }
         };
@@ -83,7 +83,7 @@ public class TealiumTests {
         Tealium tealium = new Tealium.Builder("tealiummobile", "demo")
                 .setEnvironment("env")
                 .setDatasource("datasource")
-                .setPersistentUdo(persistentUdoFake)
+                .setPersistentData(persistentUdoFake)
                 .build();
 
         tealium.track("test", null, callBack);

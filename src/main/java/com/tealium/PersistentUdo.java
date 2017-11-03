@@ -27,7 +27,7 @@ class PersistentUdo {
      * @throws PersistentDataAccessException
      *             If the file doesn't exist or the map is malformed.
      */
-    public Udo readOrCreateUdo(Udo defaultUdo) throws UdoSerializationException {
+    public Udo readOrCreateUdo(Udo defaultData) throws UdoSerializationException {
         Udo loadedUdo = null;
 
         try {
@@ -43,8 +43,8 @@ class PersistentUdo {
 
         // if unable to load existing udo, use the default
         if(loadedUdo == null) {
-            loadedUdo = defaultUdo;
-            this.writeUdo(loadedUdo);
+            loadedUdo = defaultData;
+            this.writeData(loadedUdo);
         }
 
         return loadedUdo;
@@ -58,15 +58,15 @@ class PersistentUdo {
      * serialization API.
      *
      *
-     * @param udo
+     * @param data
      *            The map to serialize, this will overwrite the existing map.
      * @throws IOException
      *             If ~/.tealium/ does not exist or cannot be created.
      */
-    public void writeUdo(Udo udo) throws UdoSerializationException {
+    public void writeData(Udo data) throws UdoSerializationException {
         try {
-            this.textStorage.writeText(udo.toJson());
-        } catch(IOException e) {} // just use udo in memory if can't write
+            this.textStorage.writeText(data.toJson());
+        } catch(IOException e) {} // just use data in memory if can't write
     }
 
     /**

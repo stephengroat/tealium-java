@@ -35,8 +35,8 @@ public class PersistentUdoTests {
         final String udoAsJson = udo.toJson();
         TextStorage mockedTextStorage = mock(TextStorage.class);
 
-        // create a the test instance and call the writeUdo() method on the udo
-        new PersistentUdo(mockedTextStorage).writeUdo(udo);
+        // create a the test instance and call the writeData() method on the udo
+        new PersistentUdo(mockedTextStorage).writeData(udo);
 
         // verify the udo was encoded and written
         verify(mockedTextStorage).writeText(udoAsJson);

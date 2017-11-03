@@ -75,15 +75,15 @@ public class TestUtils {
             private Udo udo;
 
             @Override
-            public Udo readOrCreateUdo(Udo defaultUdo) {
-                if(this.udo == null) this.udo = defaultUdo;
+            public Udo readOrCreateUdo(Udo defaultData) {
+                if(this.udo == null) this.udo = defaultData;
                 return this.udo;
             }
 
             @Override
-            public void writeUdo(Udo udo) throws UdoSerializationException {
-                if(udo == null) throw new UdoSerializationException("Cannot write null udo");
-                this.udo = udo;
+            public void writeData(Udo data) throws UdoSerializationException {
+                if(data == null) throw new UdoSerializationException("Cannot write null udo");
+                this.udo = data;
             }
 
             @Override

@@ -61,7 +61,7 @@ public class DataManagerTests {
         data.addPersistentData(map);
 
         Class<? extends DataManager> myclass = data.getClass();
-        Method method = myclass.getDeclaredMethod("getPersistentUdo");
+        Method method = myclass.getDeclaredMethod("getPersistentData");
         method.setAccessible(true);
 
         @SuppressWarnings("unchecked")
