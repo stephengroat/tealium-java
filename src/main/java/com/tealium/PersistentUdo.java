@@ -31,17 +31,20 @@ class PersistentUdo {
         Udo loadedUdo = null;
 
         try {
+            // Try loading the persistent text, nested try blocks depend on this to work.
             String loadedText = this.textStorage.readText();
             try {
+                // Try to decode from JSON first.
                 loadedUdo = Udo.fromJson(loadedText);
             } catch(UdoDeserializationException e) {
                 try {
+                    // Decoding from JSON didn't work. Perhaps it's old percent encoded text, so try that.
                     loadedUdo = Udo.fromPercentEncoded(loadedText);
                 } catch(UdoDeserializationException e2) {}
             }
         } catch(IOException e) {}
 
-        // if unable to load existing udo, use the default
+        // If unable to load existing udo, use the default.
         if(loadedUdo == null) {
             loadedUdo = defaultData;
             this.writeData(loadedUdo);

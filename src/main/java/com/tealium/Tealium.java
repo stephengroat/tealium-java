@@ -45,13 +45,21 @@ public final class Tealium {
          *            Required. Tealium profile name.
          */
         public Builder(String account, String profile) {
-            if ((account == null) || (account.length() == 0) || (profile == null) || (profile.length() == 0)) {
-                throw new IllegalArgumentException("account & profile must not be empty.");
+            if (stringIsNullOrEmpty(account) || stringIsNullOrEmpty(profile)) {
+                throw new IllegalArgumentException("Neither account nor profile may be null or empty.");
             }
 
             this.account = account;
             this.profile = profile;
         }
+
+        /**
+         * Convenience function for making code prettier and more readable.
+         *
+         * @param str
+         * @return true if the string is either null or empty
+         */
+        private static boolean stringIsNullOrEmpty(String str) {return str == null || str.length() == 0;}
         
         /**
          * Constructor for a new Tealium object.
@@ -74,7 +82,7 @@ public final class Tealium {
             if ((account == null) || (account.length() == 0)
                     || (profile == null) || (profile.length() == 0)
                     || (environment == null) || (environment.length() == 0)) {
-                throw new IllegalArgumentException("account, profile, & environment must not be empty.");
+                throw new IllegalArgumentException("Account, profile, & environment must not be empty.");
             }
 
             this.account = account;

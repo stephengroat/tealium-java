@@ -60,10 +60,22 @@ final class CollectDispatcher {
      * @see{@link #CollectCallback}
      */
     public void dispatch(Udo data, DispatchCallback callback) throws CollectDispatchException {
-        String payloadJson;
-        HttpURLConnection connection;
+        String payloadJson = encodePayload(data, callback);
+        HttpURLConnection connection = this.getConnection(data, callback);
+        this.sendPayload(data, callback, payloadJson, connection);
+    }
 
-        // Determine request url
+    /**
+     * Encode payload data into JSON, call the callback if it fails
+     *
+     * @param data
+     * @param callback
+     * @return The encoded data as a JSON string
+     * @throws CollectDispatchException
+     */
+    private static String encodePayload(Udo data, DispatchCallback callback) throws CollectDispatchException {
+        String payloadJson;
+
         try {
             payloadJson = data.toJson();
         } catch (UdoSerializationException e) {
@@ -79,7 +91,21 @@ final class CollectDispatcher {
             throw err;
         }
 
-        // create connection
+        return payloadJson;
+    }
+
+    /**
+     * Create and return a new HttpURLConnection for making a collect call, calling the callback if the connection
+     * can't be created for some reason.
+     *
+     * @param data
+     * @param callback
+     * @return The HttpURLConnection instance to be used to send data
+     * @throws CollectDispatchException
+     */
+    private HttpURLConnection getConnection(Udo data, DispatchCallback callback) throws CollectDispatchException {
+        HttpURLConnection connection;
+
         try {
             URL url = new URL(this.endpoint);
 
@@ -126,51 +152,59 @@ final class CollectDispatcher {
             throw err;
         }
 
+        return connection;
+    }
+
+    /**
+     * Take the payload string and HttpURLConnection and make the collect call,
+     * calling the callback if something goes wrong.
+     *
+     * @param data
+     * @param callback
+     * @param payloadJson
+     * @param connection
+     */
+    private void sendPayload(Udo data, DispatchCallback callback, String payloadJson, HttpURLConnection connection) {
         // Send data and get response
         try {
             Map<String, List<String>> headers;
 
             int responseCode;
 
+            // send the data
             try {
-                // send the data
                 connection.connect();
                 OutputStream os = connection.getOutputStream();
                 os.write(payloadJson.getBytes(StandardCharsets.UTF_8));
                 os.close();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new FailedConnectionException("Could not open connection with server.", e);
             }
 
+            // get result
             try {
-                // get result
                 responseCode = connection.getResponseCode();
-            } catch(IOException e) {
+            } catch (IOException e) {
                 throw new FailedConnectionException("Could not get response from server.", e);
             }
 
-            try {
-                // see if there was an error defined with the "x-error" header in the response
-                String responseError = connection.getHeaderField("x-error");
-                headers = connection.getHeaderFields();
+            // check the response for serverside issues, including any complaints about the payload
+            String responseError = connection.getHeaderField("x-error");
+            headers = connection.getHeaderFields();
 
-                if (responseError != null ){
-                    // there was an error defined by the "x-error" header
-                    throw new FailedRequestException(responseCode, responseError, headers);
-                }
-
-                if (responseCode != 200) {
-                    // the response code was something besides a successful 200
-                    responseError = "Unexpected response code received: " + Integer.toString(responseCode);
-                    throw new FailedRequestException(responseCode, responseError, headers);
-                }
-
-            } finally {
-                if (connection != null) {
-                    // disconnect if there is still a connection
-                    connection.disconnect();
-                }
+            // see if there was an error defined with the "x-error" header in the response
+            if (responseError != null) {
+                throw new FailedRequestException(responseCode, responseError, headers);
             }
+
+            // Deal with bad response codes
+            if (responseCode != 200) {
+                responseError = "Unexpected response code received: " + Integer.toString(responseCode);
+                throw new FailedRequestException(responseCode, responseError, headers);
+            }
+
+            // disconnect if there is still a connection
+            if (connection != null) connection.disconnect();
 
             // call the dispatch callback
             callCallback(callback,
@@ -201,7 +235,7 @@ final class CollectDispatcher {
     // =========================================================================
 
     /**
-     * Call the dispatch callback with the results of the collect call
+     * Call the dispatch callback with the results of the collect call, and call the callback.
      *
      * @param callback The callback to call
      * @param success true if successful, false otherwise
@@ -210,7 +244,7 @@ final class CollectDispatcher {
      * @param data data sent to endpoint
      * @param errorMessage message of what went wrong, null if nothing went wrong
      */
-    private void callCallback(Tealium.DispatchCallback callback,
+    private static void callCallback(Tealium.DispatchCallback callback,
                               boolean success,
                               String encodedUrl,
                               Map<String, List<String>> headerFields,
