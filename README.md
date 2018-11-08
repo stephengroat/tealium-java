@@ -4,6 +4,8 @@
             )](https://github.com/Tealium/tealium-java/blob/master/LICENSE.txt)
 [![Language](https://img.shields.io/badge/language-Java-orange.svg?style=flat
              )](http://www.oracle.com/technetwork/java/javase/overview/index.html)
+[![Build Status](https://travis-ci.com/stephengroat/tealium-java.svg?branch=master
+	         )](https://travis-ci.com/stephengroat/tealium-java)
 
 This mobile library leverages the power of Tealium's [AudienceStream™](http://tealium.com/products/audiencestream/) making them natively available to Java applications.
 
