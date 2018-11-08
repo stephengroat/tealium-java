@@ -1,1 +1,10 @@
 language: java
+deploy:
+  provider: s3
+  access_key_id: "YOUR AWS ACCESS KEY"
+  secret_access_key: "YOUR AWS SECRET KEY"
+  bucket: "maven.tealiumiq.com"
+  skip_cleanup: true
+  on:
+    branch: master
+    tags: true
